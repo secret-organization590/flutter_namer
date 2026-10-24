@@ -65,40 +65,62 @@ class _PairViewState extends State<PairView> {
   final viewModel = PairViewModel();
 
   @override
-  void initState() {
-    super.initState();
-
-    viewModel.generateRandom();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: .center,
-      spacing: 12.0,
-      children: [
-        ListenableBuilder(
-          listenable: viewModel,
-          builder: (context, child) {
-            return BigCard(wordPair: viewModel.wordPair!);
-          },
-        ),
-        ElevatedButton(
-          onPressed: () {
-            viewModel.generateRandom();
-          },
-          child: const Text('Next'),
-        ),
-      ],
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, child) {
+        return Column(
+          mainAxisAlignment: .center,
+          spacing: 12.0,
+          children: [
+            BigCard(wordPair: viewModel.wordPair),
+            Row(
+              mainAxisSize: .min,
+              spacing: 12.0,
+              children: [
+                ElevatedButton.icon(
+                  icon: Icon(
+                    viewModel.isFavorite
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                  ),
+                  onPressed: () {
+                    viewModel.toggleFavorite();
+                  },
+                  label: const Text('Favorite'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    viewModel.generateRandom();
+                  },
+                  child: const Text('Next'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class PairViewModel extends ChangeNotifier {
-  WordPair? wordPair;
+  WordPair wordPair = .random();
+  bool get isFavorite => favorites.contains(wordPair);
+  List<WordPair> favorites = [];
 
   void generateRandom() {
     wordPair = WordPair.random();
+
+    notifyListeners();
+  }
+
+  void toggleFavorite() {
+    if (favorites.contains(wordPair)) {
+      favorites.remove(wordPair);
+    } else {
+      favorites.add(wordPair);
+    }
 
     notifyListeners();
   }
