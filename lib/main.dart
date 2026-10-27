@@ -113,16 +113,21 @@ class PairFavoritesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (viewModel.favorites.isEmpty) {
-      return Center(child: Text('No favorites yet.'));
-    }
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, child) {
+        if (viewModel.favorites.isEmpty) {
+          return Center(child: Text('No favorites yet.'));
+        }
 
-    return ListView.builder(
-      itemCount: viewModel.favorites.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: Icon(Icons.favorite),
-          title: Text(viewModel.favorites.elementAt(index).asLowerCase),
+        return ListView.builder(
+          itemCount: viewModel.favorites.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: Icon(Icons.favorite),
+              title: Text(viewModel.favorites.elementAt(index).asLowerCase),
+            );
+          },
         );
       },
     );
@@ -174,11 +179,11 @@ class PairGeneratorView extends StatelessWidget {
   }
 }
 
-class PairViewModel extends ChangeNotifier {
+class PairViewModel with ChangeNotifier {
   WordPair wordPair = .random();
 
   bool get isFavorite => favorites.contains(wordPair);
-  List<WordPair> favorites = [];
+  Set<WordPair> favorites = {};
 
   void generateRandom() {
     wordPair = WordPair.random();
@@ -187,10 +192,8 @@ class PairViewModel extends ChangeNotifier {
   }
 
   void toggleFavorite() {
-    if (favorites.contains(wordPair)) {
+    if (!favorites.add(wordPair)) {
       favorites.remove(wordPair);
-    } else {
-      favorites.add(wordPair);
     }
 
     notifyListeners();
