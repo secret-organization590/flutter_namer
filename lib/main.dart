@@ -19,12 +19,62 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class Screen extends StatelessWidget {
+class Screen extends StatefulWidget {
   const new({super.key});
 
   @override
+  State<Screen> createState() => _ScreenState();
+}
+
+class _ScreenState extends State<Screen> {
+  int _selectedIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: PairView()));
+    final Widget page = switch (_selectedIndex) {
+      0 => PairView(),
+      1 => Placeholder(),
+
+      _ => throw UnimplementedError(),
+    };
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          body: Row(
+            children: [
+              SafeArea(
+                child: NavigationRail(
+                  extended: constraints.maxWidth >= 600,
+                  selectedIndex: _selectedIndex,
+                  destinations: [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home),
+                      label: const Text('Home'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.favorite),
+                      label: const Text('Favorites'),
+                    ),
+                  ],
+                  onDestinationSelected: (value) {
+                    setState(() {
+                      _selectedIndex = value;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: page,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
