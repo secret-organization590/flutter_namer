@@ -27,13 +27,15 @@ class Screen extends StatefulWidget {
 }
 
 class _ScreenState extends State<Screen> {
+  final viewModel = PairViewModel();
+
   int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     final Widget page = switch (_selectedIndex) {
-      0 => PairView(),
-      1 => Placeholder(),
+      0 => PairGeneratorView(viewModel: viewModel),
+      1 => PairFavoritesView(viewModel: viewModel),
 
       _ => throw UnimplementedError(),
     };
@@ -104,15 +106,33 @@ class BigCard extends StatelessWidget {
   }
 }
 
-class PairView extends StatefulWidget {
-  const new({super.key});
+class PairFavoritesView extends StatelessWidget {
+  final PairViewModel viewModel;
+
+  const new({super.key, required this.viewModel});
 
   @override
-  State<PairView> createState() => _PairViewState();
+  Widget build(BuildContext context) {
+    if (viewModel.favorites.isEmpty) {
+      return Center(child: Text('No favorites yet.'));
+    }
+
+    return ListView.builder(
+      itemCount: viewModel.favorites.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          leading: Icon(Icons.favorite),
+          title: Text(viewModel.favorites.elementAt(index).asLowerCase),
+        );
+      },
+    );
+  }
 }
 
-class _PairViewState extends State<PairView> {
-  final viewModel = PairViewModel();
+class PairGeneratorView extends StatelessWidget {
+  final PairViewModel viewModel;
+
+  const new({super.key, required this.viewModel});
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +176,7 @@ class _PairViewState extends State<PairView> {
 
 class PairViewModel extends ChangeNotifier {
   WordPair wordPair = .random();
+
   bool get isFavorite => favorites.contains(wordPair);
   List<WordPair> favorites = [];
 
